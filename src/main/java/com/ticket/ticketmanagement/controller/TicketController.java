@@ -14,9 +14,12 @@ import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.stream.Collectors;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
 @RequestMapping("/api/tickets")
+@Tag(name = "Tickets", description = "Ticket management endpoints")
 public class TicketController {
 
     private final TicketService ticketService;
@@ -29,6 +32,7 @@ public class TicketController {
 
 
     @PostMapping
+    @Operation(summary = "Create a ticket", description = "Creates a new support ticket")
     @PreAuthorize("hasAnyRole('USER', 'AGENT', 'ADMIN')")
     public ResponseEntity<TicketResponse> createTicket(
             @Valid
@@ -46,6 +50,7 @@ public class TicketController {
     }
 
     @GetMapping
+    @Operation(summary = "Get all tickets", description = "Returns paginated list of all tickets")
     @PreAuthorize("hasAnyRole('USER', 'AGENT', 'ADMIN')")
     public ResponseEntity<PageResponse<TicketResponse>> getAllTickets(
             @RequestParam(defaultValue = "0") int page,
@@ -71,12 +76,14 @@ public class TicketController {
     }
 
     @GetMapping("/{id}")
+    @Operation(summary = "Get ticket by ID", description = "Returns a single ticket by its ID")
     @PreAuthorize("hasAnyRole('USER', 'AGENT', 'ADMIN')")
     public ResponseEntity<TicketResponse> getTicketById(@PathVariable Long id) {
         return ResponseEntity.ok(toResponse(ticketService.getTicketById(id)));
     }
 
     @PutMapping("/{id}/assign")
+    @Operation(summary = "Assign ticket", description = "Assigns ticket to an agent - ADMIN only")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<TicketResponse> assignTicket(
             @PathVariable Long id,
@@ -87,12 +94,14 @@ public class TicketController {
     }
 
     @PutMapping("/{id}/resolve")
+    @Operation(summary = "Resolve ticket", description = "Resolves ticket and calculates SLA - AGENT and ADMIN only")
     @PreAuthorize("hasAnyRole('AGENT', 'ADMIN')")
     public ResponseEntity<TicketResponse> resolveTicket(@PathVariable Long id) {
         return ResponseEntity.ok(toResponse(ticketService.resolveTicket(id)));
     }
 
     @GetMapping("/report")
+    @Operation(summary = "Get report", description = "Returns ticket statistics - ADMIN only")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<TicketService.TicketReport> getReport() {
         return ResponseEntity.ok(ticketService.getReport());
