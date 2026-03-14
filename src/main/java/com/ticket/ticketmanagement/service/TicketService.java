@@ -1,5 +1,11 @@
 package com.ticket.ticketmanagement.service;
 
+import com.ticket.ticketmanagement.dto.PageResponse;
+import com.ticket.ticketmanagement.dto.TicketResponse;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import com.ticket.ticketmanagement.entity.SlaPolicy;
 import com.ticket.ticketmanagement.entity.Ticket;
 import com.ticket.ticketmanagement.entity.User;
@@ -122,4 +128,18 @@ public class TicketService {
 
     // Simple report object
     public record TicketReport(long open, long inProgress, long resolved, long breached) {}
+
+    public PageResponse<Ticket> getAllTicketsPaginated(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        Page<Ticket> ticketPage = ticketRepository.findAll(pageable);
+
+        return new PageResponse<>(
+                ticketPage.getContent(),
+                ticketPage.getNumber(),
+                ticketPage.getSize(),
+                ticketPage.getTotalElements(),
+                ticketPage.getTotalPages(),
+                ticketPage.isLast()
+        );
+    }
 }

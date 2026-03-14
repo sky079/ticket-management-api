@@ -3,6 +3,8 @@ package com.ticket.ticketmanagement.repository;
 // imports
 import com.ticket.ticketmanagement.entity.Ticket;
 import com.ticket.ticketmanagement.entity.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import java.util.List;
@@ -19,5 +21,7 @@ public interface TicketRepository extends JpaRepository<Ticket , Long> {
 
     long countByStatus(Ticket.Status status);
     long countBySlaStatus(Ticket.SlaStatus slaStatus);
+
+    Page<Ticket> findAll(Pageable pageable);
 
 }

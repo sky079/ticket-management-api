@@ -1,6 +1,7 @@
 package com.ticket.ticketmanagement.controller;
 
 import com.ticket.ticketmanagement.dto.CreateTicketRequest;
+import com.ticket.ticketmanagement.dto.PageResponse;
 import com.ticket.ticketmanagement.dto.TicketResponse;
 import com.ticket.ticketmanagement.entity.Ticket;
 import com.ticket.ticketmanagement.entity.User;
@@ -46,12 +47,27 @@ public class TicketController {
 
     @GetMapping
     @PreAuthorize("hasAnyRole('USER', 'AGENT', 'ADMIN')")
-    public ResponseEntity<List<TicketResponse>> getAllTickets() {
-        List<TicketResponse> tickets = ticketService.getAllTickets()
+    public ResponseEntity<PageResponse<TicketResponse>> getAllTickets(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        PageResponse<Ticket> ticketPage = ticketService.getAllTicketsPaginated(page, size);
+
+        List<TicketResponse> ticketResponses = ticketPage.getContent()
                 .stream()
                 .map(this::toResponse)
                 .collect(Collectors.toList());
-        return ResponseEntity.ok(tickets);
+
+        PageResponse<TicketResponse> response = new PageResponse<>(
+                ticketResponses,
+                ticketPage.getPageNumber(),
+                ticketPage.getPageSize(),
+                ticketPage.getTotalElements(),
+                ticketPage.getTotalPages(),
+                ticketPage.isLastPage()
+        );
+
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{id}")
