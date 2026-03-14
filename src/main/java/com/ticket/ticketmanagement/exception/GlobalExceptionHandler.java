@@ -28,4 +28,23 @@ public class GlobalExceptionHandler {
         error.put("timestamp", LocalDateTime.now());
         return ResponseEntity.internalServerError().body(error);
     }
+
+    @ExceptionHandler(org.springframework.web.bind.MethodArgumentNotValidException.class)
+    public ResponseEntity<Map<String, Object>> handleValidationException(
+            org.springframework.web.bind.MethodArgumentNotValidException ex) {
+
+        Map<String, Object> error = new HashMap<>();
+
+        String errorMessage = ex.getBindingResult()
+                .getFieldErrors()
+                .stream()
+                .map(field -> field.getField() + ": " + field.getDefaultMessage())
+                .collect(java.util.stream.Collectors.joining(", "));
+
+        error.put("error", errorMessage);
+        error.put("status", 400);
+        error.put("timestamp", LocalDateTime.now());
+
+        return ResponseEntity.badRequest().body(error);
+    }
 }

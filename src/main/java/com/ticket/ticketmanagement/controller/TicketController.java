@@ -9,7 +9,7 @@ import com.ticket.ticketmanagement.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-
+import jakarta.validation.Valid;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -25,8 +25,10 @@ public class TicketController {
         this.userService = userService;
     }
 
+
     @PostMapping
     public ResponseEntity<TicketResponse> createTicket(
+            @Valid
             @RequestBody CreateTicketRequest request,
             @AuthenticationPrincipal User currentUser) {
 

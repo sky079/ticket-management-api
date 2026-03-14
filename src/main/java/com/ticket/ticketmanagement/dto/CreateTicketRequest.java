@@ -1,9 +1,15 @@
 package com.ticket.ticketmanagement.dto;
+import jakarta.validation.constraints.NotBlank;
 
 public class CreateTicketRequest {
 
+    @NotBlank(message = "Title cannot be empty")
     private String title;
+
+    @NotBlank(message = "Description cannot be empty")
     private String description;
+
+    @NotBlank(message = "Priority cannot be empty")
     private String priority;
 
     public CreateTicketRequest() {}
