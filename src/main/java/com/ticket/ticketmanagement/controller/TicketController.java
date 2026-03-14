@@ -7,6 +7,7 @@ import com.ticket.ticketmanagement.entity.User;
 import com.ticket.ticketmanagement.service.TicketService;
 import com.ticket.ticketmanagement.service.UserService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
@@ -27,6 +28,7 @@ public class TicketController {
 
 
     @PostMapping
+    @PreAuthorize("hasAnyRole('USER', 'AGENT', 'ADMIN')")
     public ResponseEntity<TicketResponse> createTicket(
             @Valid
             @RequestBody CreateTicketRequest request,
@@ -43,6 +45,7 @@ public class TicketController {
     }
 
     @GetMapping
+    @PreAuthorize("hasAnyRole('USER', 'AGENT', 'ADMIN')")
     public ResponseEntity<List<TicketResponse>> getAllTickets() {
         List<TicketResponse> tickets = ticketService.getAllTickets()
                 .stream()
@@ -52,11 +55,13 @@ public class TicketController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('USER', 'AGENT', 'ADMIN')")
     public ResponseEntity<TicketResponse> getTicketById(@PathVariable Long id) {
         return ResponseEntity.ok(toResponse(ticketService.getTicketById(id)));
     }
 
     @PutMapping("/{id}/assign")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<TicketResponse> assignTicket(
             @PathVariable Long id,
             @RequestParam Long agentId) {
@@ -66,11 +71,13 @@ public class TicketController {
     }
 
     @PutMapping("/{id}/resolve")
+    @PreAuthorize("hasAnyRole('AGENT', 'ADMIN')")
     public ResponseEntity<TicketResponse> resolveTicket(@PathVariable Long id) {
         return ResponseEntity.ok(toResponse(ticketService.resolveTicket(id)));
     }
 
     @GetMapping("/report")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<TicketService.TicketReport> getReport() {
         return ResponseEntity.ok(ticketService.getReport());
     }

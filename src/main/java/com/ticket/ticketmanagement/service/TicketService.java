@@ -41,6 +41,11 @@ public class TicketService {
         Ticket ticket = ticketRepository.findById(ticketId)
                 .orElseThrow(() -> new TicketNotFoundException(ticketId));
 
+        if (ticket.getStatus() == Ticket.Status.RESOLVED) {
+            throw new BaseException("Cannot assign a resolved ticket",
+                    org.springframework.http.HttpStatus.BAD_REQUEST);
+        }
+
         ticket.setAssignedTo(agent);
         ticket.setStatus(Ticket.Status.IN_PROGRESS);
         return ticketRepository.save(ticket);
@@ -50,6 +55,11 @@ public class TicketService {
     public Ticket resolveTicket(Long ticketId) {
         Ticket ticket = ticketRepository.findById(ticketId)
                 .orElseThrow(() -> new TicketNotFoundException(ticketId));
+
+        if (ticket.getStatus() == Ticket.Status.RESOLVED) {
+            throw new BaseException("Ticket is already resolved",
+                    org.springframework.http.HttpStatus.BAD_REQUEST);
+        }
 
         // Step 1 — mark resolved time
         ticket.setResolvedAt(LocalDateTime.now());
