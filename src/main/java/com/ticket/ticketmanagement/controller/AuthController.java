@@ -4,6 +4,7 @@ import com.ticket.ticketmanagement.dto.AuthResponse;
 import com.ticket.ticketmanagement.dto.LoginRequest;
 import com.ticket.ticketmanagement.dto.RegisterRequest;
 import com.ticket.ticketmanagement.entity.User;
+import com.ticket.ticketmanagement.exception.InvalidCredentialsException;
 import com.ticket.ticketmanagement.security.JwtUtil;
 import com.ticket.ticketmanagement.service.UserService;
 import org.springframework.http.ResponseEntity;
@@ -37,10 +38,10 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest request) {
         User user = userService.findByEmail(request.getEmail())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new InvalidCredentialsException());
 
         if (!userService.checkPassword(request.getPassword(), user.getPassword())) {
-            throw new RuntimeException("Invalid credentials");
+            throw new InvalidCredentialsException();
         }
 
         String token = jwtUtil.generateToken(user.getEmail(), user.getRole().name());

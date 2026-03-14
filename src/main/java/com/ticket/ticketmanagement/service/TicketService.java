@@ -3,6 +3,8 @@ package com.ticket.ticketmanagement.service;
 import com.ticket.ticketmanagement.entity.SlaPolicy;
 import com.ticket.ticketmanagement.entity.Ticket;
 import com.ticket.ticketmanagement.entity.User;
+import com.ticket.ticketmanagement.exception.BaseException;
+import com.ticket.ticketmanagement.exception.TicketNotFoundException;
 import com.ticket.ticketmanagement.repository.SlaPolicyRepository;
 import com.ticket.ticketmanagement.repository.TicketRepository;
 import lombok.RequiredArgsConstructor;
@@ -37,7 +39,7 @@ public class TicketService {
     // Assign ticket to an agent
     public Ticket assignTicket(Long ticketId, User agent) {
         Ticket ticket = ticketRepository.findById(ticketId)
-                .orElseThrow(() -> new RuntimeException("Ticket not found with id: " + ticketId));
+                .orElseThrow(() -> new TicketNotFoundException(ticketId));
 
         ticket.setAssignedTo(agent);
         ticket.setStatus(Ticket.Status.IN_PROGRESS);
@@ -47,7 +49,7 @@ public class TicketService {
     // Resolve a ticket and calculate SLA
     public Ticket resolveTicket(Long ticketId) {
         Ticket ticket = ticketRepository.findById(ticketId)
-                .orElseThrow(() -> new RuntimeException("Ticket not found with id: " + ticketId));
+                .orElseThrow(() -> new TicketNotFoundException(ticketId));
 
         // Step 1 — mark resolved time
         ticket.setResolvedAt(LocalDateTime.now());
@@ -62,8 +64,7 @@ public class TicketService {
     // The SLA engine
     private Ticket.SlaStatus calculateSla(Ticket ticket) {
         SlaPolicy policy = slaPolicyRepository.findByPriority(ticket.getPriority())
-                .orElseThrow(() -> new RuntimeException("No SLA policy found for priority: "
-                        + ticket.getPriority()));
+                .orElseThrow(() -> new BaseException("No SLA policy found for priority: " + ticket.getPriority(), org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR));
 
         long minutesToResolve = Duration.between(ticket.getCreatedAt(),
                 ticket.getResolvedAt()).toMinutes();
@@ -86,7 +87,7 @@ public class TicketService {
     // Get ticket by id
     public Ticket getTicketById(Long id) {
         return ticketRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Ticket not found with id: " + id));
+                .orElseThrow(() -> new TicketNotFoundException(id));
     }
 
     // Get tickets by status

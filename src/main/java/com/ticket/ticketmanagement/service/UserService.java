@@ -1,6 +1,8 @@
 package com.ticket.ticketmanagement.service;
 
 import com.ticket.ticketmanagement.entity.User;
+import com.ticket.ticketmanagement.exception.EmailAlreadyExistsException;
+import com.ticket.ticketmanagement.exception.UserNotFoundException;
 import com.ticket.ticketmanagement.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -22,7 +24,9 @@ public class UserService {
     public User registerUser(String name, String email, String password, User.Role role) {
 
         if (userRepository.existsByEmail(email)) {
-            throw new RuntimeException("Email already registered");
+            if (userRepository.existsByEmail(email)) {
+                throw new EmailAlreadyExistsException(email);
+            }
         }
 
         User user = new User();
@@ -39,7 +43,7 @@ public class UserService {
 
     public User findById(Long id) {
         return userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
+                .orElseThrow(() -> new UserNotFoundException(id));
     }
     public boolean checkPassword(String rawPassword, String encodedPassword) {
         return passwordEncoder.matches(rawPassword, encodedPassword);
