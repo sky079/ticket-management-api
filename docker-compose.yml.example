@@ -7,7 +7,7 @@ services:
     environment:
       POSTGRES_DB: ticket_db
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: 123
+      POSTGRES_PASSWORD: YOUR_PASSWORD_HERE
     ports:
       - "5433:5432"
     volumes:
@@ -26,12 +26,13 @@ services:
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/ticket_db
       SPRING_DATASOURCE_USERNAME: postgres
-      SPRING_DATASOURCE_PASSWORD: 123
-      JWT_SECRET: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
+      SPRING_DATASOURCE_PASSWORD: YOUR_PASSWORD_HERE
+      JWT_SECRET: YOUR_64_CHAR_HEX_SECRET_HERE
       JWT_EXPIRATION: 86400000
     depends_on:
       db:
         condition: service_healthy
+    restart: on-failure
 
 volumes:
   postgres_data:
