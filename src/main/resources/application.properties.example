@@ -30,3 +30,12 @@ jwt.expiration=86400000
 # SQL Initialization
 # ===================================
 spring.sql.init.mode=always
+
+# ===================================
+# AWS
+# ===================================
+
+#aws.region=ap-south-1
+#aws.bucket=ticket-management-files
+#aws.access-key=${AWS_ACCESS_KEY}
+#aws.secret-key=${AWS_SECRET_KEY}

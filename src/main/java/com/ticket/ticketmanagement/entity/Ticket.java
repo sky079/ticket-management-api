@@ -43,6 +43,12 @@ public class Ticket {
     @Column(name = "resolved_at")
     private LocalDateTime resolvedAt;
 
+    @Column(name = "attachment_url")
+    private String attachmentUrl;
+
+    @Column(columnDefinition = "TEXT")
+    private String resolution;
+
     @PrePersist
     public void prePersist() {
         this.createdAt = LocalDateTime.now();
@@ -53,6 +59,14 @@ public class Ticket {
     public enum Priority { LOW, MEDIUM, HIGH }
     public enum Status { OPEN, IN_PROGRESS, RESOLVED }
     public enum SlaStatus { PENDING, MET, BREACHED }
+
+    public String getAttachmentUrl() {
+        return attachmentUrl;
+    }
+
+    public void setAttachmentUrl(String attachmentUrl) {
+        this.attachmentUrl = attachmentUrl;
+    }
 
     // Getters
     public Long getId() { return id; }
@@ -77,6 +91,13 @@ public class Ticket {
     public void setAssignedTo(User assignedTo) { this.assignedTo = assignedTo; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
     public void setResolvedAt(LocalDateTime resolvedAt) { this.resolvedAt = resolvedAt; }
+    public String getResolution() {
+        return resolution;
+    }
+
+    public void setResolution(String resolution) {
+        this.resolution = resolution;
+    }
 
     // Constructors
     public Ticket() {}

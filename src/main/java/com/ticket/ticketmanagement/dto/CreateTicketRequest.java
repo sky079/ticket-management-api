@@ -1,4 +1,5 @@
 package com.ticket.ticketmanagement.dto;
+import com.ticket.ticketmanagement.entity.Ticket;
 import jakarta.validation.constraints.NotBlank;
 
 public class CreateTicketRequest {
@@ -16,7 +17,9 @@ public class CreateTicketRequest {
 
     public String getTitle() { return title; }
     public String getDescription() { return description; }
-    public String getPriority() { return priority; }
+    public String getPriority() {
+        return priority;
+    }
 
     public void setTitle(String title) { this.title = title; }
     public void setDescription(String description) { this.description = description; }

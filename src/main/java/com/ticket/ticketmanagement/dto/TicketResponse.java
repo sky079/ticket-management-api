@@ -14,12 +14,21 @@ public class TicketResponse {
     private String assignedTo;
     private LocalDateTime createdAt;
     private LocalDateTime resolvedAt;
+    private String attachmentUrl;
 
     public TicketResponse() {}
+    public TicketResponse(Long id,
+                          String title,
+                          String description,
+                          String priority,
+                          String status,
+                          String slaStatus,
+                          String createdBy,
+                          String assignedTo,
+                          String attachmentUrl,
+                          LocalDateTime createdAt,
+                          LocalDateTime resolvedAt) {
 
-    public TicketResponse(Long id, String title, String description, String priority,
-                          String status, String slaStatus, String createdBy,
-                          String assignedTo, LocalDateTime createdAt, LocalDateTime resolvedAt) {
         this.id = id;
         this.title = title;
         this.description = description;
@@ -28,6 +37,7 @@ public class TicketResponse {
         this.slaStatus = slaStatus;
         this.createdBy = createdBy;
         this.assignedTo = assignedTo;
+        this.attachmentUrl = attachmentUrl;
         this.createdAt = createdAt;
         this.resolvedAt = resolvedAt;
     }
@@ -42,6 +52,14 @@ public class TicketResponse {
     public String getAssignedTo() { return assignedTo; }
     public LocalDateTime getCreatedAt() { return createdAt; }
     public LocalDateTime getResolvedAt() { return resolvedAt; }
+
+    public String getAttachmentUrl() {
+        return attachmentUrl;
+    }
+
+    public void setAttachmentUrl(String attachmentUrl) {
+        this.attachmentUrl = attachmentUrl;
+    }
 
     public void setId(Long id) { this.id = id; }
     public void setTitle(String title) { this.title = title; }

@@ -1,7 +1,8 @@
 package com.ticket.ticketmanagement.service;
 
+import com.ticket.ticketmanagement.dto.CreateTicketRequest;
 import com.ticket.ticketmanagement.dto.PageResponse;
-import com.ticket.ticketmanagement.dto.TicketResponse;
+import com.ticket.ticketmanagement.repository.UserRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -13,7 +14,8 @@ import com.ticket.ticketmanagement.exception.BaseException;
 import com.ticket.ticketmanagement.exception.TicketNotFoundException;
 import com.ticket.ticketmanagement.repository.SlaPolicyRepository;
 import com.ticket.ticketmanagement.repository.TicketRepository;
-import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.time.Duration;
@@ -24,21 +26,41 @@ public class TicketService {
 
     private final TicketRepository ticketRepository;
     private final SlaPolicyRepository slaPolicyRepository;
+    private final TicketChunkService ticketChunkService;
+    private final UserRepository userRepository;
 
     public TicketService(TicketRepository ticketRepository,
-                         SlaPolicyRepository slaPolicyRepository) {
+                         SlaPolicyRepository slaPolicyRepository, TicketChunkService ticketChunkService, UserRepository userRepository) {
         this.ticketRepository = ticketRepository;
         this.slaPolicyRepository = slaPolicyRepository;
+        this.ticketChunkService = ticketChunkService;
+        this.userRepository = userRepository;
     }
 
     // Create a new ticket
-    public Ticket createTicket(String title, String description,
-                               Ticket.Priority priority, User createdBy) {
+    public Ticket createTicket(
+            CreateTicketRequest request,
+            String attachmentUrl) {
+
+        Authentication authentication =
+                SecurityContextHolder.getContext().getAuthentication();
+
+        User createdBy = (User) authentication.getPrincipal();
+
         Ticket ticket = new Ticket();
-        ticket.setTitle(title);
-        ticket.setDescription(description);
-        ticket.setPriority(priority);
+
+        ticket.setTitle(request.getTitle());
+        ticket.setDescription(request.getDescription());
+
+        ticket.setPriority(
+                Ticket.Priority.valueOf(
+                        request.getPriority().toUpperCase()
+                )
+        );
+
+        ticket.setAttachmentUrl(attachmentUrl);
         ticket.setCreatedBy(createdBy);
+
         return ticketRepository.save(ticket);
     }
 
@@ -58,23 +80,28 @@ public class TicketService {
     }
 
     // Resolve a ticket and calculate SLA
-    public Ticket resolveTicket(Long ticketId) {
+    public Ticket resolveTicket(Long ticketId, String resolution) {
+
         Ticket ticket = ticketRepository.findById(ticketId)
                 .orElseThrow(() -> new TicketNotFoundException(ticketId));
 
         if (ticket.getStatus() == Ticket.Status.RESOLVED) {
-            throw new BaseException("Ticket is already resolved",
-                    org.springframework.http.HttpStatus.BAD_REQUEST);
+            throw new BaseException(
+                    "Ticket is already resolved",
+                    org.springframework.http.HttpStatus.BAD_REQUEST
+            );
         }
 
-        // Step 1 — mark resolved time
+        ticket.setResolution(resolution);
         ticket.setResolvedAt(LocalDateTime.now());
         ticket.setStatus(Ticket.Status.RESOLVED);
-
-        // Step 2 — calculate SLA
         ticket.setSlaStatus(calculateSla(ticket));
 
-        return ticketRepository.save(ticket);
+        Ticket savedTicket = ticketRepository.save(ticket);
+
+        ticketChunkService.createChunks(savedTicket);
+
+        return savedTicket;
     }
 
     // The SLA engine
