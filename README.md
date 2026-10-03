@@ -55,7 +55,6 @@ and uses the retrieved information to generate a practical answer.
 -   AWS Systems Manager Parameter Store
 -   Docker
 -   Maven
--   Swagger / OpenAPI
 
 ------------------------------------------------------------------------
 
